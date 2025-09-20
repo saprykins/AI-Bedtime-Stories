@@ -6,6 +6,12 @@ openai>=1.12.0
 # Azure Cognitive Services Speech SDK for text-to-speech
 azure-cognitiveservices-speech>=1.34.0
 
+# Environment variable loading
+python-dotenv>=1.0.0
+
+# Fallback text-to-speech (optional)
+pyttsx3>=2.90
+
 # Standard library dependencies (included with Python)
 # - argparse (CLI handling)
 # - json (data parsing)

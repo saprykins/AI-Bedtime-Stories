@@ -58,7 +58,7 @@ class TextToSpeechTool:
         Returns:
             Path to the generated audio file
         """
-        if not AZURE_SPEECH_AVAILABLE or self.speech_config is None:
+        if not AZURE_SPEECH_AVAILABLE:
             # Try pyttsx3 fallback for audio generation
             if PYTTSX3_AVAILABLE:
                 return self._generate_audio_with_pyttsx3(story_text, filename)
@@ -98,7 +98,7 @@ class TextToSpeechTool:
             if not speech_key or not speech_region:
                 raise Exception("Azure Speech Services credentials not found. Please set AZURE_SPEECH_KEY and AZURE_SPEECH_REGION environment variables.")
             
-            # Create speech configuration
+            # Create speech configuration using your working approach
             speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=speech_region)
             
             # Set voice for child-friendly speech
@@ -109,34 +109,49 @@ class TextToSpeechTool:
             audio_config = speechsdk.audio.AudioOutputConfig(filename=output_path)
             
             # Create speech synthesizer
-            synthesizer = speechsdk.SpeechSynthesizer(
-                speech_config=speech_config,
-                audio_config=audio_config
-            )
+            synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
             
             # Prepare text for speech synthesis
             speech_text = self._prepare_text_for_speech(story_text)
             
             print(f"🎤 Synthesizing speech with Azure Speech Services... (this may take a moment)")
             
-            # Perform speech synthesis
+            # Perform speech synthesis using your working approach
             result = synthesizer.speak_text_async(speech_text).get()
             
             # Check if synthesis was successful
             if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
                 print(f"✅ Speech synthesis completed successfully")
                 return output_path
-            elif result.reason == speechsdk.ResultReason.Canceled:
-                cancellation_details = result.cancellation_details
-                error_msg = f"Speech synthesis canceled: {cancellation_details.reason}"
-                if cancellation_details.error_details:
-                    error_msg += f" - {cancellation_details.error_details}"
-                raise Exception(error_msg)
             else:
-                raise Exception(f"Speech synthesis failed with reason: {result.reason}")
+                print(f"❌ Speech synthesis failed: {result.reason}")
+                # Fallback to pyttsx3 if available
+                if PYTTSX3_AVAILABLE:
+                    print("🔄 Falling back to pyttsx3...")
+                    return self._generate_audio_with_pyttsx3(story_text, filename)
+                else:
+                    raise Exception(f"Speech synthesis failed with reason: {result.reason}")
                 
         except Exception as e:
-            raise Exception(f"Text-to-speech conversion failed: {str(e)}")
+            print(f"❌ Azure Speech Services failed: {e}")
+            # Fallback to pyttsx3 if available
+            if PYTTSX3_AVAILABLE:
+                print("🔄 Falling back to pyttsx3...")
+                return self._generate_audio_with_pyttsx3(story_text, filename)
+            else:
+                # Final fallback: save as text file
+                if not filename:
+                    timestamp = int(time.time())
+                    filename = f"story_{timestamp}.txt"
+                elif not filename.endswith('.txt'):
+                    filename += '.txt'
+                
+                output_path = os.path.join(self.output_dir, filename)
+                with open(output_path, 'w', encoding='utf-8') as f:
+                    f.write(story_text)
+                
+                print(f"📝 Final fallback: Story saved as text file: {output_path}")
+                return output_path
     
     def _prepare_text_for_speech(self, story_text: str) -> str:
         """
