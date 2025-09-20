@@ -4,11 +4,241 @@ A goal-oriented AI agent that creates personalized children's stories to help ad
 
 ## Overview
 
-The Story Teller AI Agent processes descriptions of children's behavioral challenges and creates personalized fairy tales that teach appropriate behavior through engaging storytelling. The agent uses a three-tool pipeline:
+The Story Teller AI Agent processes descriptions of children's behavioral challenges and creates personalized fairy tales that teach appropriate behavior through engaging storytelling. The agent uses a three-tool pipeline to transform behavioral problems into therapeutic bedtime stories.
 
-1. **Text Analysis Tool** - Analyzes the behavioral problem and extracts key story elements
-2. **Story Generation Tool** - Creates a personalized fairy tale with appropriate moral lessons
-3. **Text-to-Speech Tool** - Converts the story into an audio file for easy sharing
+## Architecture
+
+### System Architecture
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   User Input    │───▶│  Story Agent     │───▶│  Audio Output   │
+│ (Problem Desc.) │    │  (Orchestrator)  │    │  (.wav/.txt)    │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+                              │
+                    ┌─────────┼─────────┐
+                    │         │         │
+            ┌───────▼──┐ ┌───▼──┐ ┌───▼────┐
+            │ Tool 1:  │ │Tool 2│ │Tool 3: │
+            │Text     │ │Story │ │Text-to-│
+            │Analysis │ │Gen.  │ │Speech  │
+            └─────────┘ └──────┘ └────────┘
+```
+
+### Agent Pipeline
+
+The Story Teller AI Agent follows a structured three-step process:
+
+#### **Step 1: Text Analysis Tool** 🔍
+- **Purpose**: Analyze the behavioral problem and extract key story elements
+- **Input**: Raw problem description (e.g., "My son got into a fight at school")
+- **Process**: 
+  - Identifies problem type (sharing conflict, aggression, lying, etc.)
+  - Extracts underlying emotions (anger, frustration, fear)
+  - Determines appropriate moral lesson
+  - Selects suitable animal character
+- **Output**: Structured analysis with problem type, emotions, moral, and character
+- **Fallback**: Keyword-based analysis when Azure OpenAI is unavailable
+
+#### **Step 2: Story Generation Tool** 📚
+- **Purpose**: Create a personalized fairy tale based on the analysis
+- **Input**: Structured analysis from Step 1
+- **Process**:
+  - Generates 300-500 word story using AI
+  - Incorporates selected animal character
+  - Weaves in the moral lesson naturally
+  - Uses child-friendly language and imagery
+  - Creates engaging plot with beginning, challenge, and resolution
+- **Output**: Complete bedtime story text
+- **Fallback**: Template-based story generation when Azure OpenAI is unavailable
+
+#### **Step 3: Text-to-Speech Tool** 🎵
+- **Purpose**: Convert the story into audio for easy sharing
+- **Input**: Generated story text from Step 2
+- **Process**:
+  - Converts text to high-quality audio
+  - Uses child-friendly voice (AriaNeural)
+  - Optimizes speech rate and tone for children
+  - Saves as WAV file for playback
+- **Output**: Audio file (.wav) or text file (.txt) as fallback
+- **Fallback**: pyttsx3 local TTS → text file when Azure Speech Services unavailable
+
+### Data Flow
+```
+User Input → Analysis → Story → Audio → Output
+     ↓           ↓        ↓       ↓        ↓
+"Fight at    Sharing   Bear     WAV     Ready to
+ school"     Conflict  Story    File    play!
+```
+
+### Technical Architecture
+
+#### **Core Components**
+- **`story_agent.py`**: Main orchestrator that coordinates the three tools
+- **`tools/text_analysis.py`**: Problem analysis and character selection
+- **`tools/story_generation.py`**: AI-powered story creation
+- **`tools/text_to_speech.py`**: Audio generation with multiple fallbacks
+
+#### **Service Integration**
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│  Azure OpenAI   │    │  Azure Speech    │    │  Local Fallback │
+│  (Primary)      │    │  Services        │    │  (pyttsx3)      │
+│                 │    │  (Primary)       │    │                 │
+│ • GPT-4         │    │ • AriaNeural     │    │ • System TTS    │
+│ • Text Analysis │    │ • High Quality   │    │ • Offline Mode  │
+│ • Story Gen.    │    │ • Child Voice    │    │ • Always Works  │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+         │                       │                       │
+         └───────────────────────┼───────────────────────┘
+                                 │
+                    ┌────────────▼────────────┐
+                    │    Story Agent Core     │
+                    │   (Intelligent Routing) │
+                    └─────────────────────────┘
+```
+
+#### **Fallback Strategy**
+1. **Primary**: Azure OpenAI + Azure Speech Services (best quality)
+2. **Secondary**: Azure OpenAI + pyttsx3 (good quality, local audio)
+3. **Tertiary**: Template-based + pyttsx3 (basic quality, always works)
+4. **Final**: Template-based + text file (minimal, but functional)
+
+### Detailed Execution Flow
+
+#### **Phase 1: Initialization** 🚀
+```
+1. Load environment variables from .env file
+2. Initialize three tools with fallback detection
+3. Create output directory if it doesn't exist
+4. Display welcome message and process input
+```
+
+#### **Phase 2: Problem Analysis** 🔍
+```
+Input: "My son got into a fight at school because he didn't want to share a toy."
+
+Step 2.1: Check Azure OpenAI availability
+├─ Available: Use AI-powered analysis
+│  ├─ Send problem to GPT-4
+│  ├─ Extract: problem_type, emotions, moral, story_theme
+│  └─ Select appropriate animal character
+└─ Unavailable: Use keyword-based fallback
+   ├─ Parse keywords: "fight", "share", "school"
+   ├─ Map to problem type: "sharing conflict"
+   └─ Select character: "peaceful little bear"
+
+Output: {
+  "problem_type": "sharing conflict",
+  "emotions": "anger, frustration",
+  "moral": "sharing helps friends have fun together",
+  "character": "a peaceful little bear"
+}
+```
+
+#### **Phase 3: Story Generation** 📚
+```
+Input: Analysis from Phase 2
+
+Step 3.1: Check Azure OpenAI availability
+├─ Available: Use AI-powered generation
+│  ├─ Create story prompt with analysis data
+│  ├─ Generate 300-500 word story
+│  ├─ Ensure child-friendly language
+│  └─ Include moral lesson naturally
+└─ Unavailable: Use template-based generation
+   ├─ Select appropriate story template
+   ├─ Fill in character and moral details
+   └─ Generate complete story
+
+Output: Complete bedtime story text
+```
+
+#### **Phase 4: Audio Generation** 🎵
+```
+Input: Story text from Phase 3
+
+Step 4.1: Check Azure Speech Services availability
+├─ Available: Use Azure TTS
+│  ├─ Configure AriaNeural voice
+│  ├─ Set child-friendly speech rate
+│  ├─ Convert text to high-quality audio
+│  └─ Save as .wav file
+├─ Unavailable: Check pyttsx3 availability
+│  ├─ Available: Use local TTS
+│  │  ├─ Initialize system TTS engine
+│  │  ├─ Configure female voice
+│  │  ├─ Set slower speech rate
+│  │  └─ Save as .wav file
+│  └─ Unavailable: Save as text file
+│      ├─ Clean and format story text
+│      └─ Save as .txt file
+
+Output: Audio file (.wav) or text file (.txt)
+```
+
+#### **Phase 5: Completion** ✅
+```
+1. Display success message
+2. Show output file path
+3. Provide usage tip for parents
+4. Clean up temporary resources
+```
+
+### Operation Modes
+
+The Story Teller AI Agent operates in different modes based on available services:
+
+#### **Mode 1: Full AI Mode** 🤖 (Best Quality)
+- **Requirements**: Azure OpenAI + Azure Speech Services
+- **Features**: 
+  - AI-powered problem analysis
+  - AI-generated personalized stories
+  - High-quality Azure TTS with AriaNeural voice
+- **Output**: Professional .wav audio files
+- **Best for**: Production use, highest quality experience
+
+#### **Mode 2: Hybrid Mode** 🔄 (Good Quality)
+- **Requirements**: Azure OpenAI + Local TTS (pyttsx3)
+- **Features**:
+  - AI-powered problem analysis
+  - AI-generated personalized stories
+  - Local system TTS (varies by OS)
+- **Output**: .wav audio files with system voice
+- **Best for**: When Azure Speech Services unavailable
+
+#### **Mode 3: Template Mode** 📝 (Basic Quality)
+- **Requirements**: Local TTS (pyttsx3) only
+- **Features**:
+  - Keyword-based problem analysis
+  - Template-based story generation
+  - Local system TTS
+- **Output**: .wav audio files with basic stories
+- **Best for**: Offline use, no Azure credentials
+
+#### **Mode 4: Text Mode** 📄 (Minimal)
+- **Requirements**: None (always works)
+- **Features**:
+  - Keyword-based problem analysis
+  - Template-based story generation
+  - Text file output
+- **Output**: .txt files for manual reading
+- **Best for**: Emergency fallback, debugging
+
+### Mode Detection
+The agent automatically detects available services and selects the best mode:
+```
+Azure OpenAI? ──Yes──► Azure Speech? ──Yes──► Mode 1 (Full AI)
+     │                    │
+     No                   No
+     │                    │
+     ▼                    ▼
+pyttsx3? ──Yes──► Mode 2 (Hybrid)    Mode 3 (Template)
+     │
+     No
+     │
+     ▼
+Mode 4 (Text)
+```
 
 ## Features
 
@@ -319,11 +549,3 @@ The Story Teller AI Agent includes robust fallback modes that allow it to work e
 - **Azure OpenAI**: Pay per token usage (very low cost for short stories)
 - **Azure Speech Services**: Pay per character converted to speech
 - **Estimated cost**: Less than $0.01 per story for typical usage
-
-## License
-
-This project is provided as-is for educational and personal use. Please ensure you comply with Azure's terms of service and usage policies.
-
-## Contributing
-
-Feel free to submit issues, feature requests, or pull requests to improve the agent's functionality and story quality.

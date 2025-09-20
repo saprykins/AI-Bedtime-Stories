@@ -80,7 +80,7 @@ class StoryGenerationTool:
                     }
                 ],
                 temperature=0.7,
-                max_tokens=150
+                max_tokens=1500
             )
             
             story_text = response.choices[0].message.content.strip()
@@ -102,7 +102,7 @@ class StoryGenerationTool:
         emotions = analysis_result.get("emotions", "mixed feelings")
         
         return f"""
-Create a delightful children's fairy tale with the following elements:
+Create a delightful children's fairy tale with the following elements, using a dialogue format between a Man (Dad/Father) and Woman (Mom/Mother) telling the story together:
 
 Main Character: {character}
 Problem Theme: {problem_type}
@@ -111,25 +111,36 @@ Story Theme: {story_theme}
 Emotions to Address: {emotions}
 
 Story Requirements:
-1. Length: 300-500 words (perfect for a 3-5 minute audio story)
-2. Structure: Beginning (introduce character and setting), Middle (challenge/problem), End (resolution and lesson learned)
-3. Tone: Warm, magical, and encouraging
-4. Language: Simple, clear, and engaging for young children
-5. Setting: A magical forest, meadow, or other enchanting place
-6. Supporting Characters: Include 1-2 friendly animal friends or wise mentors
-7. Conflict: Present the behavioral challenge in a gentle, non-threatening way
-8. Resolution: Show the character learning and growing through the experience
-9. Ending: Positive and uplifting with a clear but subtle moral message
+1. Format: Write as a dialogue between Mom and Dad telling the story together
+2. Length: 300-500 words (perfect for a 3-5 minute audio story)
+3. Structure: Parents take turns telling parts of the story, using dialogue markers:
+   - Start lines with "Man:" or "Woman:" to indicate who's speaking
+   - Example:
+     Woman: Once upon a time...
+     Man: In a magical forest, there lived...
+     Woman: One sunny morning...
+4. Tone: Warm, parental, and encouraging
+5. Language: Simple, clear, and engaging for young children
+6. Setting: A magical forest, meadow, or other enchanting place
+7. Characters: Include animal friends or wise mentors
+8. Resolution: Show character learning and growing
+9. Ending: Positive and uplifting with a clear moral message
 
 Important Guidelines:
+- Format ALL story content as dialogue between Mom and Dad
+- Use natural turn-taking between parents telling the story
 - Never directly mention the child's actual problem
-- Use the animal character as a gentle mirror, not a direct parallel
-- Make the story feel like entertainment, not a lecture
-- Include sensory details (sounds, colors, textures) to make it engaging
-- Use dialogue to bring characters to life
-- End with the character feeling proud and happy about their growth
+- Make the story feel like a bedtime story told by both parents
+- Add parental warmth and gentle guidance in the dialogue
+- Include reactions and gentle comments from both parents
 
-Write the story now:
+Example Format:
+Woman: Once upon a time, in a magical forest...
+Man: There lived a little rabbit who loved to play...
+Woman: One day, this little rabbit met a friend...
+[continue in this format]
+
+Write the story now as a dialogue between Mom and Dad:
 """
     
     def _format_story(self, story_text: str) -> str:
@@ -180,45 +191,81 @@ Write the story now:
         # Simple template-based story generation
         story_templates = {
             "sharing conflict": f"""
-Once upon a time, there was {character} who lived in a beautiful forest. {character.title()} had a favorite toy that they loved to play with every day.
+Woman: Once upon a time, there was {character} who lived in a beautiful forest.
 
-One sunny morning, {character} was playing with their special toy when a friendly rabbit came by. "May I play with your toy too?" asked the rabbit with a hopeful smile.
+Man: This little {character} had a very special toy that they loved to play with every day. It was their most favorite thing in the whole world.
 
-{character.title()} felt a little worried. "This is MY toy," they thought. "What if it gets broken or lost?"
+Woman: One sunny morning, while {character} was playing, a friendly rabbit hopped by with a hopeful smile.
 
-But then {character} remembered something their wise owl friend had once said: "The best toys are the ones we share with friends, because then we have twice as much fun!"
+Man: The rabbit looked at the toy with big, gentle eyes and asked very politely, "May I play with your toy too?"
 
-So {character} smiled and said, "Of course! Let's play together!" And you know what? They had the most wonderful time playing together, laughing and having fun.
+Woman: Oh, our little {character} felt quite worried about this. They held the toy close and thought, "This is MY toy. What if it gets broken or lost?"
 
-From that day on, {character} learned that sharing makes everything more special. The toy was still theirs, but now it brought joy to their friends too, and that made {character} feel very happy indeed.
+Man: But just then, something wonderful happened. {character.title()} remembered the wise words of their friend, the old owl.
 
-The end.
+Woman: The owl had once said, "The best toys are the ones we share with friends, because then we have twice as much fun!"
+
+Man: And you know what our brave little {character} did next? They took a deep breath, smiled warmly, and said...
+
+Woman: "Of course! Let's play together!" And oh, what fun they had!
+
+Man: They played and laughed and had the most wonderful time together. The toy seemed even more special when it was shared.
+
+Woman: From that day on, {character} discovered something magical - sharing made everything more special. The toy was still theirs, but now it brought joy to their friends too.
+
+Man: And that made {character} feel happier than they'd ever felt before.
+
+Woman: The end, sweetheart. Sweet dreams.
 """,
             "aggression": f"""
-Once upon a time, there was {character} who lived in a peaceful meadow. {character.title()} was usually very kind, but sometimes when things didn't go their way, they would get very angry and want to fight.
+Woman: Once upon a time, in a peaceful meadow, there lived {character}. They were usually very kind and friendly.
 
-One day, {character} was playing a game with their friends when they didn't win. Instead of being happy for the winner, {character} felt angry and wanted to fight about it.
+Man: But sometimes, when things didn't go exactly their way, our little {character} would get very frustrated and want to fight.
 
-But then their wise turtle friend came over and said gently, "My dear {character}, fighting never solves anything. It only makes everyone sad, including you."
+Woman: One sunny day, {character} was playing a fun game with all their forest friends. Everyone was having such a wonderful time.
 
-{character.title()} took a deep breath and thought about it. The turtle was right. Fighting made everyone feel bad, and it didn't make the game any more fun.
+Man: But when the game ended, {character} discovered they hadn't won. Instead of being happy for their friends who won, they started to feel very angry inside.
 
-So {character} apologized to their friends and said, "You're right, I was wrong to get angry. Let's play again and have fun together!"
+Woman: Just as {character} was about to lose their temper, something wonderful happened. Their wise old friend, the turtle, slowly walked over.
 
-From that day on, {character} learned that when things don't go their way, it's better to take a deep breath, talk about it calmly, and find a peaceful solution. And you know what? Everyone had much more fun playing together after that!
+Man: The turtle looked at {character} with kind, gentle eyes and said softly, "My dear friend, fighting never solves anything. It only makes everyone sad, including you."
 
-The end.
+Woman: {character.title()} looked at their friend's caring face and took a deep, calming breath. They could feel their anger starting to melt away.
+
+Man: And you know what? The turtle was absolutely right. Fighting wouldn't make the game any more fun, and it wouldn't make anyone feel better.
+
+Woman: So our brave {character} did something really wonderful. They turned to their friends with a warm smile.
+
+Man: "I'm sorry," they said, "I was wrong to get angry. Would you like to play another game together?"
+
+Woman: From that day on, whenever things didn't go their way, {character} remembered to take a deep breath and talk about their feelings calmly.
+
+Man: And you know what the most amazing part was? Everyone had so much more fun playing together after that!
+
+Woman: The end, little one. Sweet dreams.
 """,
             "default": f"""
-Once upon a time, there was {character} who lived in a magical forest. {character.title()} was learning about {moral} through their daily adventures.
+Woman: Once upon a time, in a magical forest full of wonder, there lived {character}.
 
-One day, {character} faced a challenge that tested their understanding of this important lesson. At first, it was difficult, but with the help of their forest friends and their own growing wisdom, {character} found the right way to handle the situation.
+Man: Each day, this little {character} was learning something very special - they were learning about {moral}.
 
-Through this experience, {character} learned that {moral}, and this made them feel proud and happy. Their friends were proud of them too, and everyone in the forest celebrated {character}'s growth and wisdom.
+Woman: One bright morning, {character} faced a challenge that would test everything they had learned so far.
 
-From that day forward, {character} remembered this important lesson and used it to help others in the forest, making it a more wonderful place for everyone.
+Man: At first, it seemed very difficult, and our little friend wasn't sure what to do.
 
-The end.
+Woman: But you know what made all the difference? Their wonderful forest friends came to help, sharing their wisdom and support.
+
+Man: With their friends by their side, {character} found the courage and wisdom to handle the situation in just the right way.
+
+Woman: Through this amazing experience, {character} learned something very important about {moral}.
+
+Man: And you should have seen how proud everyone was! The whole forest celebrated {character}'s growth and wisdom.
+
+Woman: From that day forward, whenever another friend needed help, {character} was there to share what they had learned.
+
+Man: They made the magical forest an even more wonderful place for everyone.
+
+Woman: The end, sweetheart. Time for sweet dreams.
 """
         }
         
