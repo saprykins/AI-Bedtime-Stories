@@ -28,6 +28,13 @@ To listen to our example stories:
 </audio>
 
 
+<audio controls>
+  <source src="https://github.com/user-attachments/files/22443497/story_1758383964.wav" type="audio/wav">
+  Your browser does not support the audio element.
+</audio>
+
+
+
 
 <audio controls>
   <source src="https://github.com/saprykins/AI-Bedtime-Stories/releases/download/v1.0.0/sharing_story_example.wav" type="audio/wav">
