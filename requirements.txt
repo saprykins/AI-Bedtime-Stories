@@ -1,0 +1,25 @@
+# Story Teller AI Agent Dependencies
+
+# Azure OpenAI for text analysis and story generation
+openai>=1.12.0
+
+# Azure Cognitive Services Speech SDK for text-to-speech
+azure-cognitiveservices-speech>=1.34.0
+
+# Standard library dependencies (included with Python)
+# - argparse (CLI handling)
+# - json (data parsing)
+# - os (environment variables, file operations)
+# - sys (system operations)
+# - time (timestamp generation)
+# - typing (type hints)
+# - re (text processing)
+
+# Optional: For enhanced text processing
+# nltk>=3.8.1  # Uncomment if you want advanced NLP features
+# spacy>=3.7.0  # Uncomment if you want advanced text analysis
+
+# Development dependencies (optional)
+# pytest>=7.4.0  # For testing
+# black>=23.0.0  # For code formatting
+# flake8>=6.0.0  # For linting
