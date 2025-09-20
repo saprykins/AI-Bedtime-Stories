@@ -17,6 +17,16 @@ To listen to our example stories:
 > 
 > Then update the links above with your actual release URLs.
 
+<audio controls>
+  <source src="https://github.com/saprykins/AI-Bedtime-Stories/releases/download/v1.0.0/sharing_story_example.wav" type="audio/wav">
+  Your browser does not support the audio element.
+</audio>
+
+<audio controls>
+  <source src="https://github.com/saprykins/AI-Bedtime-Stories/releases/download/v1.0.0/sharing_story_example.wav" type="audio/wav">
+  Your browser does not support the audio element.
+</audio>
+
 ---al-oriented AI agent that creates personalized children's stories to help address behavioral problems through gentle, therapeutic storytelling.
 
 ## Overview
