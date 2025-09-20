@@ -7,7 +7,7 @@ A goal-oriented AI agent that creates personalized children's stories to help ad
 The Story Teller AI Agent processes descriptions of children's behavioral challenges and creates personalized fairy tales that teach appropriate behavior through engaging storytelling. The agent uses a three-tool pipeline to transform behavioral probl💡 Tip: Play the audio file to share the story with your child!
 
 <audio controls>
-  <source src="https://github.com/saprykins/AI-Bedtime-Stories/blob/main/output/story_1758383964.wav" type="audio/wav">
+   <source src="https://raw.githubusercontent.com/saprykins/AI-Bedtime-Stories/blob/main/output/story_1758383964.wav" type="audio/wav">
   Your browser does not support the audio element.
 </audio>
 
