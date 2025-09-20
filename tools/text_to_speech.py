@@ -4,17 +4,22 @@ Tool 3: Text-to-Speech Tool
 This tool converts the generated story text into audio using Azure Speech Services.
 """
 
+
 import os
 import time
 from typing import Optional
+
+# Load .env at the very top, before any Azure SDK import (to match working script)
+from dotenv import load_dotenv
+load_dotenv()
+
+# Import Azure Speech SDK
 try:
     import azure.cognitiveservices.speech as speechsdk
-    from dotenv import load_dotenv
     AZURE_SPEECH_AVAILABLE = True
-    # Load environment variables
-    load_dotenv()
-except (ImportError, FileNotFoundError, OSError) as e:
-    print(f"Warning: Azure Speech Services not available: {e}")
+except ImportError as import_error:
+    print(f"Warning: Azure Speech Services import failed: {import_error}")
+    print("💡 Please ensure 'azure-cognitiveservices-speech' is installed.")
     AZURE_SPEECH_AVAILABLE = False
 
 # Try to import pyttsx3 as fallback
@@ -26,6 +31,18 @@ except ImportError:
 
 
 class TextToSpeechTool:
+    def _get_speech_config(self):
+        """
+        Create and return an Azure SpeechConfig object using environment variables.
+        """
+        speech_key = os.getenv("AZURE_SPEECH_KEY")
+        speech_region = os.getenv("AZURE_SPEECH_REGION")
+        if not speech_key or not speech_region:
+            raise Exception("Azure Speech Services credentials not found. Please set AZURE_SPEECH_KEY and AZURE_SPEECH_REGION environment variables.")
+        speech_config = speechsdk.SpeechConfig(subscription=speech_key, region=speech_region)
+        voice_name = os.getenv("AZURE_VOICE_NAME", "en-US-AriaNeural")
+        speech_config.speech_synthesis_voice_name = voice_name
+        return speech_config
     """
     Converts story text to audio using Azure Speech Services.
     Provides child-friendly voice synthesis with appropriate pacing and tone.

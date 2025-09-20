@@ -163,7 +163,7 @@ The agent will:
 
 1. **Analyze** the problem and extract key elements
 2. **Generate** a personalized fairy tale (300-500 words)
-3. **Create** an audio file (MP3 format) or text file in the output directory
+3. **Create** an audio file (WAV format) or text file in the output directory
 4. **Display** a confirmation message with the file path
 
 ### Example Output (with Azure credentials):
@@ -179,10 +179,10 @@ The agent will:
 
 🎵 Tool 3: Converting story to audio...
 🎤 Synthesizing speech... (this may take a moment)
-✅ Audio saved to: ./output/story_1703123456.mp3
+[32m✅ Audio saved to: ./output/story_1703123456.wav[0m
 
 🎉 Story generated and saved successfully!
-📁 Audio file: ./output/story_1703123456.mp3
+[32m📁 Audio file: ./output/story_1703123456.wav[0m
 
 💡 Tip: Play the audio file to share the story with your child!
 ```
