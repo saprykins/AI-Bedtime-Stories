@@ -245,7 +245,7 @@ class TextToSpeechTool:
         print(f"ℹ️  Speech rate configuration would be set to: {rate}")
         print("   (Full rate control requires SSML implementation)")
     
-    def _generate_audio_with_pyttsx3(self, story_text: str, filename: Optional[str] = None) -> str:
+    def _generate_audio_with_pyttsx3(self, story_text: str, filename: str = None) -> str:
         """
         Generate audio using pyttsx3 as fallback when Azure Speech Services is not available.
         
@@ -284,7 +284,7 @@ class TextToSpeechTool:
                         break
             
             # Set speech rate (slower for children)
-            engine.setProperty('rate', 150)  # Default is usually 200
+            engine.setProperty('rate', 130)  # Lowered for softer sound
             
             # Set volume
             engine.setProperty('volume', 0.9)
@@ -295,22 +295,114 @@ class TextToSpeechTool:
             # Save to file
             engine.save_to_file(speech_text, output_path)
             engine.runAndWait()
-            
-            print(f"✅ Audio generated successfully with pyttsx3")
+
             return output_path
-            
+
         except Exception as e:
-            print(f"❌ pyttsx3 audio generation failed: {e}")
-            # Fallback to text file
-            if not filename:
-                timestamp = int(time.time())
-                filename = f"story_{timestamp}.txt"
-            elif not filename.endswith('.txt'):
-                filename += '.txt'
-            
-            output_path = os.path.join(self.output_dir, filename)
-            with open(output_path, 'w', encoding='utf-8') as f:
-                f.write(story_text)
-            
-            print(f"📝 Fallback: Story saved as text file: {output_path}")
-            return output_path
+            print(f"❌ Error generating audio with pyttsx3: {str(e)}")
+            raise
+
+    def _build_dialogue_ssml(self, story_text: str) -> str:
+        """
+        Build SSML for a dialogue between a man (low bass) and a woman (natural).
+        Detects lines starting with 'Man:' and 'Woman:' and assigns voices.
+        """
+        # Azure recommended voices
+        man_voice = "en-US-GuyNeural"  # or en-US-DavisNeural
+        woman_voice = "en-US-AriaNeural"  # or en-US-JennyNeural
+        # SSML prosody for low bass man
+        man_prosody = "<prosody pitch='-6st' rate='-10%'>"
+        woman_prosody = "<prosody pitch='+0st' rate='-10%'>"
+        # Build SSML
+        ssml_lines = []
+        import re
+        for line in story_text.split('\n'):
+            line = line.strip()
+            if not line:
+                continue
+            m = re.match(r'^(Man|Мужчина|Папа|Отец|Папа|Папочка|Папа\w*|Муж\w*|Father|Dad|Papa|Male):\s*(.*)', line, re.IGNORECASE)
+            w = re.match(r'^(Woman|Женщина|Мама|Мать|Мамочка|Мама\w*|Жен\w*|Mother|Mom|Mama|Female):\s*(.*)', line, re.IGNORECASE)
+            if m:
+                text = m.group(2)
+                ssml_lines.append(f"<voice name='{man_voice}'>{man_prosody}{text}</prosody></voice>")
+            elif w:
+                text = w.group(2)
+                ssml_lines.append(f"<voice name='{woman_voice}'>{woman_prosody}{text}</prosody></voice>")
+            else:
+                # Default to woman for narration, but neutral prosody
+                ssml_lines.append(f"<voice name='{woman_voice}'><prosody rate='-10%'>{line}</prosody></voice>")
+        ssml_body = '\n'.join(ssml_lines)
+        ssml = f'''<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">
+{ssml_body}
+</speak>'''
+        return ssml
+    def _build_dialogue_ssml(self, story_text: str) -> str:
+        """
+        Build SSML for a dialogue between a man (low bass) and a woman (natural).
+        Detects lines starting with 'Man:' and 'Woman:' and assigns voices.
+        """
+        # Azure recommended voices
+        man_voice = "en-US-GuyNeural"  # or en-US-DavisNeural
+        woman_voice = "en-US-AriaNeural"  # or en-US-JennyNeural
+        # SSML prosody for low bass man
+        man_prosody = "<prosody pitch='-6st' rate='-10%'>"
+        woman_prosody = "<prosody pitch='+0st' rate='-10%'>"
+        # Build SSML
+        ssml_lines = []
+        import re
+        for line in story_text.split('\n'):
+            line = line.strip()
+            if not line:
+                continue
+            m = re.match(r'^(Man|Мужчина|Папа|Отец|Папа|Папочка|Папа\w*|Муж\w*|Father|Dad|Papa|Male):\s*(.*)', line, re.IGNORECASE)
+            w = re.match(r'^(Woman|Женщина|Мама|Мать|Мамочка|Мама\w*|Жен\w*|Mother|Mom|Mama|Female):\s*(.*)', line, re.IGNORECASE)
+            if m:
+                text = m.group(2)
+                ssml_lines.append(f"<voice name='{man_voice}'>{man_prosody}{text}</prosody></voice>")
+            elif w:
+                text = w.group(2)
+                ssml_lines.append(f"<voice name='{woman_voice}'>{woman_prosody}{text}</prosody></voice>")
+            else:
+                # Default to woman for narration, but neutral prosody
+                ssml_lines.append(f"<voice name='{woman_voice}'><prosody rate='-10%'>{line}</prosody></voice>")
+        ssml_body = '\n'.join(ssml_lines)
+        ssml = f'''<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">
+{ssml_body}
+</speak>'''
+        return ssml
+
+
+        def _build_dialogue_ssml(self, story_text: str) -> str:
+            """
+            Build SSML for a dialogue between a man (low bass) and a woman (natural).
+            Detects lines starting with 'Man:' and 'Woman:' and assigns voices.
+            """
+            # Azure recommended voices
+            man_voice = "en-US-GuyNeural"  # or en-US-DavisNeural
+            woman_voice = "en-US-AriaNeural"  # or en-US-JennyNeural
+            # SSML prosody for low bass man
+            man_prosody = "<prosody pitch='-6st' rate='-10%'>"
+            woman_prosody = "<prosody pitch='+0st' rate='-10%'>"
+            # Build SSML
+            ssml_lines = []
+            import re
+            for line in story_text.split('\n'):
+                line = line.strip()
+                if not line:
+                    continue
+                m = re.match(r'^(Man|Мужчина|Папа|Отец|Папа|Папочка|Папа\w*|Муж\w*|Father|Dad|Papa|Male):\s*(.*)', line, re.IGNORECASE)
+                w = re.match(r'^(Woman|Женщина|Мама|Мать|Мамочка|Мама\w*|Жен\w*|Mother|Mom|Mama|Female):\s*(.*)', line, re.IGNORECASE)
+                if m:
+                    text = m.group(2)
+                    ssml_lines.append(f"<voice name='{man_voice}'>{man_prosody}{text}</prosody></voice>")
+                elif w:
+                    text = w.group(2)
+                    ssml_lines.append(f"<voice name='{woman_voice}'>{woman_prosody}{text}</prosody></voice>")
+                else:
+                    # Default to woman for narration, but neutral prosody
+                    ssml_lines.append(f"<voice name='{woman_voice}'><prosody rate='-10%'>{line}</prosody></voice>")
+            ssml_body = '\n'.join(ssml_lines)
+            ssml = f'''<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">
+    {ssml_body}
+    </speak>'''
+            return ssml
