@@ -42,10 +42,10 @@ venv.bak/
 *~
 
 # Output files
-output/
-*.mp3
-*.wav
-*.m4a
+# output/
+# *.mp3
+# *.wav
+# *.m4a
 
 # Logs
 *.log
