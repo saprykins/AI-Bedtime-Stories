@@ -1,6 +1,6 @@
-# Story Teller AI Agent 🎭
+# Intelligent Story Agent (text → audio) 🎭
 
-A goal-oriented AI agent that creates personalized children's stories with multi-voice narration to help address behavioral problems through gentle, therapeutic storytelling.
+A goal-oriented AI agent that creates personalized stories with multi-voice narration to help address behavioral problems through gentle, therapeutic storytelling.
 
 💡 **Generated Stories**
 
@@ -9,7 +9,6 @@ You can find example stories in our [`output/`](https://github.com/saprykins/AI-
 Each generated story includes:
 - Multi-voice narration (male/female characters)
 - Personalized moral lessons
-- Child-friendly animal characters
 - Professional audio quality
 - 3-5 minutes duration
 
@@ -19,7 +18,7 @@ Each generated story includes:
 
 ## Overview
 
-The Story Teller AI Agent processes descriptions of children's behavioral challenges and creates personalized fairy tales that teach appropriate behavior through engaging storytelling. The agent uses a three-tool pipeline to transform behavioral problems into therapeutic bedtime stories.
+The Story Teller AI Agent processes descriptions of behavioral challenges and creates personalized fairy tales that teach appropriate behavior through engaging storytelling. The agent uses a three-tool pipeline to transform behavioral problems into therapeutic bedtime stories.
 
 ### Example Story Output
 
